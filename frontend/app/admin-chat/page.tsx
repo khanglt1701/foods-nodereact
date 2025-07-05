@@ -439,7 +439,6 @@ export default function AdminChatPage() {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       
       <Box sx={{ display: 'flex', gap: 2, height: { xs: 'auto', md: '70vh' }, flexDirection: { xs: 'column', md: 'row' } }}>
-        {/* Conversations List */}
         <Paper elevation={2} sx={{ width: { xs: '100%', md: 300 }, mb: { xs: 2, md: 0 }, overflowY: 'auto' }}>
           <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
             <Typography variant="h6">Cuộc hội thoại</Typography>
@@ -507,18 +506,15 @@ export default function AdminChatPage() {
           </List>
         </Paper>
 
-        {/* Chat Area */}
         <Paper elevation={2} sx={{ flex: 1, width: { xs: '100%', md: 'auto' }, display: 'flex', flexDirection: 'column' }}>
           {selectedUser ? (
             <>
-              {/* Chat Header */}
               <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
                 <Typography variant="h6">
                   Chat với {conversations.find(c => c.userId === selectedUser)?.userName}
                 </Typography>
               </Box>
 
-              {/* Messages Area */}
               <Box sx={{ 
                 flex: 1, 
                 overflowY: 'auto', 
@@ -601,7 +597,6 @@ export default function AdminChatPage() {
                       </React.Fragment>
                     ))}
                     
-                    {/* Typing indicator */}
                     {isTyping && (
                       <ListItem sx={{ flexDirection: 'column', alignItems: 'flex-start', p: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
@@ -627,7 +622,6 @@ export default function AdminChatPage() {
                 )}
               </Box>
               
-              {/* Input Area */}
               <Box component="form" onSubmit={handleSend} sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <TextField
