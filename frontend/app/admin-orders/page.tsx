@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
 import { Container, Typography, List, ListItem, ListItemText, Paper, CircularProgress, Alert, Box, Chip, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { useOrderNotification } from '../context/OrderNotificationContext';
 import { useSocket } from '../../hooks/useSocket';
 import { useRouter } from 'next/navigation';
 
@@ -36,7 +35,6 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { addNotification } = useOrderNotification();
   const previousOrdersRef = useRef<Order[]>([]);
   const { socket, isConnected, isAuthenticated, joinAdminRoom } = useSocket();
   const router = useRouter();
@@ -105,7 +103,7 @@ export default function AdminOrdersPage() {
     const interval = setInterval(fetchOrders, 30000);
     
     return () => clearInterval(interval);
-  }, [addNotification]);
+  }, []);
 
   useEffect(() => {
     if (!socket || !isAuthenticated) return;
@@ -113,12 +111,6 @@ export default function AdminOrdersPage() {
     joinAdminRoom();
 
     socket.on('new_order_for_admin', (data: { order: Order; customerName: string; restaurantName: string }) => {
-      addNotification({
-        type: 'new_order',
-        orderId: data.order._id,
-        message: `Đơn hàng mới từ ${data.customerName} - ${data.restaurantName}`
-      });
-      
       setOrders(prev => [data.order, ...prev]);
     });
 
@@ -136,7 +128,7 @@ export default function AdminOrdersPage() {
       socket.off('new_order_for_admin');
       socket.off('order_status_updated');
     };
-  }, [socket, isAuthenticated, addNotification, joinAdminRoom]);
+  }, [socket, isAuthenticated, joinAdminRoom]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -271,7 +263,7 @@ export default function AdminOrdersPage() {
                         Món ăn:
                       </Typography>
                       {order.items.map((item, index) => (
-                        <Typography key={item.food._id} variant="body2" color="text.secondary" sx={{ ml: 2, mt: 0.5 }}>
+                        <Typography key={item.food._id + '-' + index} variant="body2" color="text.secondary" sx={{ ml: 2, mt: 0.5 }}>
                           • {item.food.name} - {item.quantity} phần - {(item.price || 0).toLocaleString()}đ
                         </Typography>
                       ))}

@@ -86,7 +86,10 @@ router.post('/', auth, async (req, res) => {
 router.get('/my', auth, async (req, res) => {
   try {
     logger.info('GET /orders/my', { user: req.user });
-    const orders = await Order.find({ customer: req.user.userId }).populate('restaurant').populate('items.food');
+    const orders = await Order.find({ customer: req.user.userId })
+      .populate('restaurant')
+      .populate('items.food')
+      .sort({ createdAt: -1 }); // Sắp xếp mới nhất ở trên
     logger.info('orders', orders );
     res.json(orders);
   } catch (err) {

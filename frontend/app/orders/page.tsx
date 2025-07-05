@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from 'react';
-import { Container, Typography, List, ListItem, ListItemText, Paper, CircularProgress, Alert, Box, Chip, Button } from '@mui/material';
-import { useOrderNotification } from '../context/OrderNotificationContext';
+import { Container, Typography, List, ListItem, ListItemText, Paper, CircularProgress, Alert, Box, Chip, Button, Snackbar } from '@mui/material';
 import { useSocket } from '../../hooks/useSocket';
 import { useRouter } from 'next/navigation';
 
@@ -30,11 +29,12 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { addNotification } = useOrderNotification();
   const previousOrdersRef = useRef<Order[]>([]);
   const { socket, isConnected, isAuthenticated, joinUserRoom } = useSocket();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -50,6 +50,11 @@ export default function OrdersPage() {
     socket.emit('test_room', { message: 'Customer orders page connected' });
 
     socket.on('test_response', (data) => {
+      console.log('Test response:', data);
+    });
+
+    socket.on('test_order_status', (data: any) => {
+      console.log('Test response:', data);
     });
 
     socket.on('test_order_status', (data: any) => {
@@ -63,12 +68,6 @@ export default function OrdersPage() {
       const newStatus = data.status;
       const statusText = data.statusText || getStatusText(newStatus);
       
-      addNotification({
-        type: 'status_update',
-        orderId: orderId,
-        message: `Đơn hàng #${orderId.slice(-6)} - ${statusText}`
-      });
-      
       setOrders(prev => 
         prev.map(order => 
           order._id === orderId 
@@ -79,27 +78,20 @@ export default function OrdersPage() {
     });
 
     socket.on('order_status', (data: any) => {
+      console.log('Received order_status event:', data);
       const userData = localStorage.getItem('user');
       if (!userData) {
         return;
       }
-      
       const user = JSON.parse(userData);
-      
       if (data.customerId !== user._id) {
         return;
       }
-      
       const orderId = data.orderId || data._id;
       const newStatus = data.status;
       const statusText = data.statusText || getStatusText(newStatus);
-      
-      addNotification({
-        type: 'status_update',
-        orderId: orderId,
-        message: `Đơn hàng #${orderId.slice(-6)} - ${statusText}`
-      });
-      
+      setSnackbarMsg(`Đơn hàng đã được cập nhật trạng thái: ${statusText}`);
+      setSnackbarOpen(true);
       setOrders(prev => {
         const updated = prev.map(order => {
           if (order._id === orderId) {
@@ -120,7 +112,7 @@ export default function OrdersPage() {
       socket.off('test_order_status');
       socket.off('test_response');
     };
-  }, [socket, isConnected, isAuthenticated, addNotification, joinUserRoom]);
+  }, [socket, isConnected, isAuthenticated, joinUserRoom]);
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -163,7 +155,7 @@ export default function OrdersPage() {
     const interval = setInterval(fetchOrders, 30000);
     
     return () => clearInterval(interval);
-  }, [addNotification]);
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -251,6 +243,13 @@ export default function OrdersPage() {
           )}
         </List>
       </Paper>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMsg}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      />
     </Container>
   );
 } 
