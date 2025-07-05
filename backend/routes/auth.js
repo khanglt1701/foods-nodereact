@@ -6,7 +6,6 @@ const logger = require('../logger');
 
 const router = express.Router();
 
-// Đăng ký
 router.post('/register', async (req, res) => {
   try {
     logger.info('POST /auth/register', { body: req.body });
@@ -27,7 +26,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Đăng nhập
 router.post('/login', async (req, res) => {
   try {
     logger.info('POST /auth/login', { body: req.body });
@@ -53,7 +51,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Lấy thông tin admin
 router.get('/admin', async (req, res) => {
   try {
     logger.info('GET /auth/admin', { user: req.user });

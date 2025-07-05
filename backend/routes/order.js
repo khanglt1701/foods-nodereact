@@ -5,13 +5,11 @@ const logger = require('../logger');
 
 const router = express.Router();
 
-// Tạo đơn hàng (customer)
 router.post('/', auth, async (req, res) => {
   try {
     logger.info('POST /orders', { body: req.body, user: req.user });
     if (req.user.role !== 'customer') return res.status(403).json({ message: 'Chỉ khách hàng mới được đặt món' });
     
-    // Kiểm tra req.body có tồn tại không
     if (!req.body) {
       logger.error('req.body is undefined', { headers: req.headers });
       return res.status(400).json({ message: 'Dữ liệu request không hợp lệ' });
@@ -19,7 +17,6 @@ router.post('/', auth, async (req, res) => {
     
     const { restaurant, items } = req.body;
     
-    // Validation dữ liệu đầu vào
     if (!restaurant) {
       logger.warn('Thiếu thông tin nhà hàng', { body: req.body });
       return res.status(400).json({ message: 'Thiếu thông tin nhà hàng' });
@@ -30,7 +27,6 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'Thiếu hoặc sai định dạng danh sách món ăn' });
     }
     
-    // Kiểm tra từng item trong items
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (!item.food || !item.quantity || item.quantity <= 0) {
@@ -41,7 +37,6 @@ router.post('/', auth, async (req, res) => {
     
     logger.info('Dữ liệu hợp lệ, tiến hành tạo đơn hàng', { restaurant, itemsCount: items.length });
     
-    // Tính tổng tiền
     const totalAmount = items.reduce((total, item) => total + (item.price * item.quantity), 0);
     
     const order = new Order({ 
@@ -49,20 +44,17 @@ router.post('/', auth, async (req, res) => {
       restaurant, 
       items,
       totalAmount,
-      status: 'pending' // Đặt trạng thái mặc định là chờ xác nhận
+      status: 'pending'
     });
     
     await order.save();
     logger.info('Đã lưu đơn hàng thành công', { orderId: order._id, restaurant, itemsCount: items.length });
     
-    // Emit socket cho admin/quán
     if (req.app.get('io')) {
       const io = req.app.get('io');
       
-      // Emit cho restaurant room
       io.to(restaurant).emit('new_order', order);
       
-      // Emit cho admin room để nhận thông báo
       io.to('admin').emit('new_order_for_admin', {
         order,
         customerName: req.user.name || 'Khách hàng',
@@ -82,14 +74,13 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// Lấy đơn hàng của user (customer)
 router.get('/my', auth, async (req, res) => {
   try {
     logger.info('GET /orders/my', { user: req.user });
     const orders = await Order.find({ customer: req.user.userId })
       .populate('restaurant')
       .populate('items.food')
-      .sort({ createdAt: -1 }); // Sắp xếp mới nhất ở trên
+      .sort({ createdAt: -1 });
     logger.info('orders', orders );
     res.json(orders);
   } catch (err) {
@@ -98,7 +89,6 @@ router.get('/my', auth, async (req, res) => {
   }
 });
 
-// Lấy tất cả đơn hàng (admin) - PHẢI ĐẶT TRƯỚC /restaurant/:id
 router.get('/all', auth, async (req, res) => {
   try {
     logger.info('GET /orders/all', { user: req.user });
@@ -108,7 +98,7 @@ router.get('/all', auth, async (req, res) => {
       .populate('restaurant')
       .populate('items.food')
       .populate('customer', 'name email')
-      .sort({ createdAt: -1 }); // Sắp xếp theo thời gian tạo mới nhất
+      .sort({ createdAt: -1 }); 
     
     logger.info('Retrieved all orders', { count: orders.length });
     res.json(orders);
@@ -118,7 +108,6 @@ router.get('/all', auth, async (req, res) => {
   }
 });
 
-// Lấy đơn hàng của quán (admin) - PHẢI ĐẶT SAU /all
 router.get('/restaurant/:id', auth, async (req, res) => {
   try {
     logger.info('GET /orders/restaurant/:id', { user: req.user, params: req.params });
@@ -131,14 +120,12 @@ router.get('/restaurant/:id', auth, async (req, res) => {
   }
 });
 
-// Cập nhật trạng thái đơn hàng (admin) - PUT method
 router.put('/:id/status', auth, async (req, res) => {
   try {
     logger.info('PUT /orders/:id/status', { user: req.user, params: req.params, body: req.body });
     if (req.user.role !== 'admin') return res.status(403).json({ message: 'Chỉ nhân viên mới được cập nhật trạng thái' });
     const { status } = req.body;
     
-    // Validate status values
     const validStatuses = ['pending', 'confirmed', 'completed'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: 'Trạng thái không hợp lệ' });
@@ -150,7 +137,7 @@ router.put('/:id/status', auth, async (req, res) => {
       { new: true }
     );
     if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
-    // Emit socket cho customer
+
     if (req.app.get('io')) {
       req.app.get('io').to(String(order.customer)).emit('order_status', order);
     }
@@ -161,7 +148,6 @@ router.put('/:id/status', auth, async (req, res) => {
   }
 });
 
-// Cập nhật trạng thái đơn hàng (admin) - PATCH method (for frontend compatibility)
 router.patch('/:id/status', auth, async (req, res) => {
   try {
     logger.info('PATCH /orders/:id/status', { user: req.user, params: req.params, body: req.body });
@@ -169,7 +155,6 @@ router.patch('/:id/status', auth, async (req, res) => {
     
     const { status } = req.body;
     
-    // Validate status values
     const validStatuses = ['pending', 'confirmed', 'completed'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: 'Trạng thái không hợp lệ' });
@@ -183,12 +168,10 @@ router.patch('/:id/status', auth, async (req, res) => {
     
     if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
     
-    // Emit socket events for real-time updates
     if (req.app.get('io')) {
       const io = req.app.get('io');
       const customerId = String(order.customer._id);
       
-      // Emit cho customer room cụ thể
       io.to(`user_${customerId}`).emit('order_status', {
         orderId: order._id,
         status: order.status,
@@ -197,10 +180,8 @@ router.patch('/:id/status', auth, async (req, res) => {
         customerId: customerId
       });
       
-      // Emit cho admin room để cập nhật UI admin
       io.to('admin').emit('order_status_updated', order);
       
-      // Emit cho tất cả clients như backup (để đảm bảo customer nhận được)
       io.emit('order_status', {
         orderId: order._id,
         status: order.status,
@@ -226,7 +207,6 @@ router.patch('/:id/status', auth, async (req, res) => {
   }
 });
 
-// Helper function to get status text
 const getStatusText = (status) => {
   switch (status) {
     case 'pending':

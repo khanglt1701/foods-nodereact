@@ -5,7 +5,6 @@ const logger = require('../logger');
 
 const router = express.Router();
 
-// Lấy danh sách món ăn
 router.get('/', async (req, res) => {
   try {
     logger.info('GET /foods');
@@ -21,7 +20,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Lấy chi tiết món ăn
 router.get('/:id', async (req, res) => {
   try {
     logger.info('GET /foods/:id', { params: req.params });
@@ -34,7 +32,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Thêm món ăn (chỉ admin)
 router.post('/', auth, async (req, res) => {
   try {
     logger.info('POST /foods', { user: req.user, body: req.body });
@@ -49,7 +46,6 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// Sửa món ăn (chỉ admin)
 router.put('/:id', auth, async (req, res) => {
   try {
     logger.info('PUT /foods/:id', { user: req.user, params: req.params, body: req.body });
@@ -68,7 +64,6 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
-// Xóa món ăn (chỉ admin)
 router.delete('/:id', auth, async (req, res) => {
   try {
     logger.info('DELETE /foods/:id', { user: req.user, params: req.params });
