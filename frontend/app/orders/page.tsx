@@ -25,6 +25,8 @@ type Order = {
   };
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,7 +132,7 @@ export default function OrdersPage() {
     }
     
     const fetchOrders = () => {
-      fetch('http://localhost:5000/api/orders/my', {
+      fetch(`${API_URL}/api/orders/my`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {

@@ -33,7 +33,8 @@ export const useSocket = (): UseSocketReturn => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const socket = io('http://localhost:5000', {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const socket = io(apiUrl, {
       transports: ['websocket', 'polling']
     });
 

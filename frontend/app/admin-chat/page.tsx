@@ -50,6 +50,8 @@ type Conversation = {
   unreadCount: number;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 export default function AdminChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
@@ -108,7 +110,7 @@ export default function AdminChatPage() {
       return;
     }
 
-    fetch('http://localhost:5000/api/messages/all', {
+    fetch(`${API_URL}/api/messages/all`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {
@@ -291,7 +293,7 @@ export default function AdminChatPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/messages', {
+      const response = await fetch(`${API_URL}/api/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

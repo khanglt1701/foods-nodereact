@@ -43,6 +43,8 @@ type User = {
   role: string;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -87,7 +89,7 @@ export default function ChatPage() {
       setUser(JSON.parse(userData));
     }
 
-    fetch('http://localhost:5000/api/messages/admin', {
+    fetch(`${API_URL}/api/messages/admin`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {
@@ -198,7 +200,7 @@ export default function ChatPage() {
     try {
       let adminId = admin?._id;
       if (!adminId) {
-        const adminResponse = await fetch('http://localhost:5000/api/auth/admin', {
+        const adminResponse = await fetch(`${API_URL}/api/auth/admin`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (adminResponse.ok) {
@@ -212,7 +214,7 @@ export default function ChatPage() {
         throw new Error('Không tìm thấy admin!');
       }
 
-      const response = await fetch('http://localhost:5000/api/messages', {
+      const response = await fetch(`${API_URL}/api/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

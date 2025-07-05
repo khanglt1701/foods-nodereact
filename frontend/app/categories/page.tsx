@@ -11,8 +11,10 @@ export default function CategoriesPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
   useEffect(() => {
-    fetch('http://localhost:5000/api/categories')
+    fetch(`${API_URL}/api/categories`)
       .then(res => res.json())
       .then(data => {
         setCategories(data);

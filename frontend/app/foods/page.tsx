@@ -25,6 +25,8 @@ type Restaurant = {
   name: string;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 export default function FoodsPage() {
   const [foods, setFoods] = useState<Food[]>([]);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
@@ -40,11 +42,11 @@ export default function FoodsPage() {
   useEffect(() => {
     let url = '';
     if (restaurantId) {
-      url = `http://localhost:5000/api/foods?restaurantId=${restaurantId}`;
+      url = `${API_URL}/api/foods?restaurantId=${restaurantId}`;
     } else if (categoryId) {
-      url = `http://localhost:5000/api/foods?categoryId=${categoryId}`;
+      url = `${API_URL}/api/foods?categoryId=${categoryId}`;
     } else {
-      url = 'http://localhost:5000/api/foods';
+      url = `${API_URL}/api/foods`;
     }
 
     fetch(url)
@@ -59,7 +61,7 @@ export default function FoodsPage() {
       });
 
     if (restaurantId) {
-      fetch(`http://localhost:5000/api/restaurants/${restaurantId}`)
+      fetch(`${API_URL}/api/restaurants/${restaurantId}`)
         .then(res => res.json())
         .then(data => setRestaurant(data))
         .catch(() => setRestaurant(null));

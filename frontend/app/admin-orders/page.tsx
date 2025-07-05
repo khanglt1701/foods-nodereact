@@ -29,6 +29,8 @@ type Order = {
   };
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -78,7 +80,7 @@ export default function AdminOrdersPage() {
     }
     
     const fetchOrders = () => {
-      fetch('http://localhost:5000/api/orders/all', {
+      fetch(`${API_URL}/api/orders/all`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {
@@ -161,7 +163,7 @@ export default function AdminOrdersPage() {
     if (!token) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const response = await fetch(`${API_URL}/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
