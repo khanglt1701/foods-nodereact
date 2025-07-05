@@ -286,7 +286,6 @@ export default function ChatPage() {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       
       <Paper elevation={3} sx={{ height: '60vh', display: 'flex', flexDirection: 'column' }}>
-        {/* Messages Area */}
         <Box sx={{ 
           flex: 1, 
           overflowY: 'auto', 
@@ -369,7 +368,6 @@ export default function ChatPage() {
                 </React.Fragment>
               ))}
               
-              {/* Typing indicator */}
               {isTyping && (
                 <ListItem sx={{ flexDirection: 'column', alignItems: 'flex-start', p: 1 }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
@@ -395,7 +393,6 @@ export default function ChatPage() {
           )}
         </Box>
         
-        {/* Input Area */}
         <Box component="form" onSubmit={handleSend} sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <TextField
