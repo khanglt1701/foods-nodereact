@@ -44,7 +44,7 @@ export default function OrdersPage() {
     const userData = localStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
-      joinUserRoom(user.userId);
+      joinUserRoom(user._id);
     }
 
     socket.emit('test_room', { message: 'Customer orders page connected' });
@@ -57,7 +57,7 @@ export default function OrdersPage() {
       if (!userData) return;
       
       const user = JSON.parse(userData);
-      if (data.customerId !== user.userId) return;
+      if (data.customerId !== user._id) return;
       
       const orderId = data.orderId;
       const newStatus = data.status;
@@ -86,7 +86,7 @@ export default function OrdersPage() {
       
       const user = JSON.parse(userData);
       
-      if (data.customerId !== user.userId) {
+      if (data.customerId !== user._id) {
         return;
       }
       
@@ -149,20 +149,6 @@ export default function OrdersPage() {
         })
         .then(data => {
           setOrders(data);
-          
-          const statusUpdates = data.filter((order: Order) => {
-            const prevOrder = previousOrdersRef.current.find(prev => prev._id === order._id);
-            return prevOrder && prevOrder.status !== order.status;
-          });
-          
-          statusUpdates.forEach((order: Order) => {
-            addNotification({
-              type: 'status_update',
-              orderId: order._id,
-              message: `Đơn hàng #${order._id.slice(-6)} - ${getStatusText(order.status)}`
-            });
-          });
-          
           previousOrdersRef.current = data;
           setLoading(false);
         })

@@ -438,9 +438,9 @@ export default function AdminChatPage() {
       
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       
-      <Box sx={{ display: 'flex', gap: 2, height: '70vh' }}>
+      <Box sx={{ display: 'flex', gap: 2, height: { xs: 'auto', md: '70vh' }, flexDirection: { xs: 'column', md: 'row' } }}>
         {/* Conversations List */}
-        <Paper elevation={2} sx={{ width: 300, overflowY: 'auto' }}>
+        <Paper elevation={2} sx={{ width: { xs: '100%', md: 300 }, mb: { xs: 2, md: 0 }, overflowY: 'auto' }}>
           <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
             <Typography variant="h6">Cuộc hội thoại</Typography>
           </Box>
@@ -508,7 +508,7 @@ export default function AdminChatPage() {
         </Paper>
 
         {/* Chat Area */}
-        <Paper elevation={2} sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Paper elevation={2} sx={{ flex: 1, width: { xs: '100%', md: 'auto' }, display: 'flex', flexDirection: 'column' }}>
           {selectedUser ? (
             <>
               {/* Chat Header */}

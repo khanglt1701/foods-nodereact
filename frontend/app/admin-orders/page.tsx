@@ -91,32 +91,6 @@ export default function AdminOrdersPage() {
         })
         .then(data => {
           setOrders(data);
-          
-          const newOrders = data.filter((order: Order) => 
-            !previousOrdersRef.current.find(prevOrder => prevOrder._id === order._id)
-          );
-          
-          const statusUpdates = data.filter((order: Order) => {
-            const prevOrder = previousOrdersRef.current.find(prev => prev._id === order._id);
-            return prevOrder && prevOrder.status !== order.status;
-          });
-          
-          newOrders.forEach((order: Order) => {
-            addNotification({
-              type: 'new_order',
-              orderId: order._id,
-              message: `Đơn hàng mới từ ${order.customer?.name || 'Khách hàng'} - ${order.restaurant?.name || 'Quán ăn'}`
-            });
-          });
-          
-          statusUpdates.forEach((order: Order) => {
-            addNotification({
-              type: 'status_update',
-              orderId: order._id,
-              message: `Đơn hàng #${order._id.slice(-6)} - ${getStatusText(order.status)}`
-            });
-          });
-          
           previousOrdersRef.current = data;
           setLoading(false);
         })
@@ -154,12 +128,6 @@ export default function AdminOrdersPage() {
           order._id === updatedOrder._id ? updatedOrder : order
         )
       );
-      
-      addNotification({
-        type: 'status_update',
-        orderId: updatedOrder._id,
-        message: `Đơn hàng #${updatedOrder._id.slice(-6)} - ${getStatusText(updatedOrder.status)}`
-      });
     });
 
     socket.emit('test_room', { message: 'Admin orders page connected' });
@@ -218,12 +186,6 @@ export default function AdminOrdersPage() {
             order._id === orderId ? updatedOrder : order
           )
         );
-        
-        addNotification({
-          type: 'status_update',
-          orderId: updatedOrder._id,
-          message: `Đơn hàng #${updatedOrder._id.slice(-6)} - ${getStatusText(updatedOrder.status)}`
-        });
       } else {
         console.error('Failed to update order status:', response.statusText);
       }
@@ -244,7 +206,7 @@ export default function AdminOrdersPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" mb={3}>Quản lý đơn hàng (Admin)</Typography>
+      <Typography variant="h4" mb={3}>Quản lý đơn hàng</Typography>
       <Box sx={{ mb: 3 }}>
         <FormControl sx={{ minWidth: 200 }}>
           <InputLabel id="status-filter-label">Lọc theo trạng thái</InputLabel>

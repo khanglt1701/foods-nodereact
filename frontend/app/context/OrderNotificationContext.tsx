@@ -37,13 +37,22 @@ export const OrderNotificationProvider: React.FC<OrderNotificationProviderProps>
   const [notifications, setNotifications] = useState<OrderNotification[]>([]);
 
   const addNotification = (notification: Omit<OrderNotification, 'id' | 'timestamp' | 'read'>) => {
-    const newNotification: OrderNotification = {
-      ...notification,
-      id: Date.now().toString() + Math.random().toString(36).substring(2, 8),
-      timestamp: new Date(),
-      read: false
-    };
-    setNotifications(prev => [newNotification, ...prev]);
+    setNotifications(prev => {
+      const isDuplicate = prev.some(n =>
+        n.type === notification.type &&
+        n.orderId === notification.orderId &&
+        n.message === notification.message &&
+        !n.read
+      );
+      if (isDuplicate) return prev;
+      const newNotification: OrderNotification = {
+        ...notification,
+        id: Date.now().toString() + Math.random().toString(36).substring(2, 8),
+        timestamp: new Date(),
+        read: false
+      };
+      return [newNotification, ...prev];
+    });
   };
 
   const markAsRead = (id: string) => {

@@ -251,6 +251,58 @@ export default function Navbar() {
           </Box>
         </Toolbar>
       </Container>
+      <Menu
+        anchorEl={notificationAnchorEl}
+        open={Boolean(notificationAnchorEl)}
+        onClose={handleNotificationClose}
+        PaperProps={{ sx: { width: 350, maxHeight: 400 } }}
+      >
+        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <MuiTypography variant="h6">Thông báo</MuiTypography>
+            {unreadCount > 0 && (
+              <Button size="small" onClick={markAllAsRead}>
+                Đánh dấu đã đọc
+              </Button>
+            )}
+          </Box>
+        </Box>
+        {notifications.length === 0 ? (
+          <Box sx={{ p: 2, textAlign: 'center' }}>
+            <MuiTypography variant="body2" color="text.secondary">
+              Không có thông báo nào
+            </MuiTypography>
+          </Box>
+        ) : (
+          <List sx={{ p: 0 }}>
+            {notifications.map((notification, index) => (
+              <React.Fragment key={notification.id}>
+                <ListItem 
+                  onClick={() => handleNotificationClick(notification.id)}
+                  sx={{ 
+                    backgroundColor: notification.read ? 'transparent' : 'action.hover',
+                    '&:hover': { backgroundColor: 'action.selected' },
+                    cursor: 'pointer'
+                  }}
+                >
+                  <ListItemText
+                    primary={notification.message}
+                    secondary={formatTime(notification.timestamp)}
+                    primaryTypographyProps={{
+                      variant: 'body2',
+                      fontWeight: notification.read ? 'normal' : 'bold'
+                    }}
+                    secondaryTypographyProps={{
+                      variant: 'caption'
+                    }}
+                  />
+                </ListItem>
+                {index < notifications.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </List>
+        )}
+      </Menu>
       <Drawer
         anchor="left"
         open={mobileOpen}
